@@ -23,6 +23,10 @@ import java.util.regex.Pattern;
  *
  * Si un texto ya trae colores propios (por ejemplo NEON_CYAN + "hola" + RESET),
  * se respetan tal cual y solo se le agrega la animación.
+ *
+ * NOVEDADES: deja una línea en blanco antes de que hable alguien, muestra el
+ * aviso "Presiona ENTER para continuar" (avisoEnter / borrarAviso) y hace que
+ * cada personaje hable con su voz (voz.hablar).
  */
 public class Estilo {
 
@@ -92,6 +96,23 @@ public class Estilo {
         } catch (Exception e) {
             System.out.println("[ESTILO] No pudo iniciar: " + e);
         }
+    }
+
+    // =====================================================================
+    //  AVISO "PRESIONA ENTER" (lo usa la clase Teclado)
+    // =====================================================================
+
+    /** Muestra "Presiona ENTER para continuar" en gris, sin animación. */
+    public static void avisoEnter() {
+        o().print(GRIS + "   \u25B6 Presiona ENTER para continuar..." + RESET);
+        o().flush();
+    }
+
+    /** Borra el aviso cuando el jugador ya presionó ENTER y corta la voz que estaba sonando. */
+    public static void borrarAviso() {
+        o().print("\u001B[1A\u001B[2K\r");
+        o().flush();
+        voz.callar();
     }
 
     // =====================================================================
@@ -268,7 +289,7 @@ public class Estilo {
     // =====================================================================
 
     public static void println(String texto) { imprimir(texto, true); }
-    public static void println()             { o().println(); }
+    public static void println()             { o().println(); ultimaVacia = true; }
     public static void println(Object o)     { imprimir(String.valueOf(o), true); }
     public static void print(String texto)   { imprimir(texto, false); }
     public static void print(char c) {
@@ -289,6 +310,10 @@ public class Estilo {
         if (texto == null) texto = "null";
         boolean conColor = texto.indexOf('\u001B') >= 0;
         int visibles = visibles(texto);
+
+        // ¿lo último que se imprimió fue una línea en blanco? (para separar bien los diálogos)
+        boolean estabaVacia = ultimaVacia;
+        ultimaVacia = salto && (visibles == 0 || texto.endsWith("\n"));
 
         // Cosas muy cortas o barras de carga (empiezan con \r): salen directo
         if (texto.startsWith("\r") || (conColor && visibles <= 8) || (!conColor && visibles <= 1)) {
@@ -336,10 +361,14 @@ public class Estilo {
             if (m.matches() && !t.startsWith("[") && !t.startsWith("FIN") && !t.startsWith("Fin de")) {
                 String nombre = m.group(1);
                 String color = colorDe(nombre);
+                if (i == 0 && !estabaVacia) o().println();                 // línea en blanco antes de que hable alguien
+                voz.hablar(nombre, linea.substring(m.end(1) + 1));         // voz del personaje
                 o().print(NEGRITA + color + nombre + ":" + RESET);
                 heredado = color;
                 teclear(linea.substring(m.end(1) + 1), pintorSolido(color), msPorLetra, nl);
             } else if (t.startsWith("\u201C") || NARRA.equals(heredado)) {
+                if (i == 0 && !estabaVacia) o().println();
+                voz.hablar("NARRADOR", t);                                 // voz del narrador
                 heredado = (t.endsWith("\u201D") || t.endsWith("\u201C")) ? null : NARRA;
                 teclear(linea, pintorSolido(NARRA), msPorLetra, nl);
             } else if (t.contains("[ERROR]")) {
@@ -401,6 +430,7 @@ public class Estilo {
     /** La salida real de la consola (System.out queda interceptado por Estilo). */
     private static PrintStream real = System.out;
     private static String colorHabla = null;            // color del personaje que está hablando en una caja
+    private static boolean ultimaVacia = true;          // ¿lo último impreso fue una línea en blanco?
 
     private static PrintStream o() { return real; }
 
@@ -413,7 +443,7 @@ public class Estilo {
         @Override public void println(String s) { imprimir(s, true); }
         @Override public void print(Object x)   { imprimir(String.valueOf(x), false); }
         @Override public void println(Object x) { imprimir(String.valueOf(x), true); }
-        @Override public void println()         { real.println(); real.flush(); }
+        @Override public void println()         { real.println(); real.flush(); ultimaVacia = true; }
         @Override public void print(char c)     { Estilo.print(c); }
     }
 

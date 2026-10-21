@@ -7,6 +7,8 @@ public class Caja {
     private static final int ANCHO = 58;   // ancho interior de la caja
 
     public static void decir(String personaje, String mensaje) {
+        voz.hablar(personaje, mensaje);    // el personaje habla con su voz
+
         String c = Estilo.CIAN, y = Estilo.AMARILLO, r = Estilo.RESET;
         String nombre = personaje.toUpperCase();
         String color = nombre.startsWith("ARIS") ? Estilo.VIOLETA : Estilo.CIAN;

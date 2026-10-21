@@ -11,10 +11,12 @@ public class main {
     public static final String NEON_AZUL = "\u001B[34m";
     public static final String BLANCO_BRILLANTE = "\u001B[37;1m";
 
-   public static void main(String[] args) {
-    Estilo.iniciar();
-    // === AUDIO EN SEGUNDO PLANO (Ruta Actualizada a spaces.wav) ===
-    AudioEspacial musicaFondo = new AudioEspacial("sonido/spaces.wav");
+    public static void main(String[] args) {
+        Estilo.iniciar();
+        Asistente.iniciar();   // abre la ventanita del asistente (abajo a la derecha)
+
+        // === AUDIO EN SEGUNDO PLANO (Ruta Actualizada a spaces.wav) ===
+        AudioEspacial musicaFondo = new AudioEspacial("sonido/spaces.wav");
         new Thread(musicaFondo).start();
         boolean sonidoActivo = true; // Control del estado del audio
         // =====================================================
@@ -27,42 +29,10 @@ public class main {
         limpiarPantalla();
         mostrarArranqueSujeto();
 
-        while (opcion != 3) {
+        while (opcion != 4) {
             limpiarPantalla();
 
-            // Indicador visual dinámico en la cabecera
-            String estadoSonido = sonidoActivo ? NEON_VERDE + "ON " : NEON_ROJO + "OFF";
-
-        Pantalla.menu(sonidoActivo);
-          if (false) {   // menú viejo, ya no se usa
-            System.out.println(NEON_MAGENTA
-                    + "◢◤ [QUANTUM_GRID_CORE v5.0] ═══════════════════════════════════════════ ◥◣" + RESET);
-            System.out.println(NEON_CYAN + "  █▀▀█ █▀▀█ █▀▀█ █▀▀ █▀▀   █   █ █▀▀█ █▄  █ █▀▀▄ █▀▀ █▀▀█ █▀▀  " + RESET);
-            System.out.println(NEON_CYAN + "  ▀▀▄▄ █▄▄█ █▄▄█ █   █▀▀   █ █ █ █▄▄█ █ █ █ █  █ █▀▀ █▄▄▀ ▀▀█  " + RESET);
-            System.out.println(NEON_CYAN + "  █▄▄█ █    █  █ ▀▀▀ ▀▀▀   ▀▄▀▄▀ █  █ █  ▀█ █▄▀  ▀▀▀ █  █ ▀▀▀  " + RESET);
-            System.out.println(NEON_MAGENTA
-                    + "═══════════════════════════════════════════════════════════ AUTH_LINK_OK ══" + RESET);
-            System.out.println(NEON_CYAN
-                    + " ║  ⚡ MATRIZ: CONECTADA  │  🔋 ENERGÍA: 100%  │  🔊 AUDIO: " + estadoSonido + NEON_CYAN + "          ║" + RESET);
-            System.out.println(NEON_CYAN + " ║ ──────────────────────  " + BLANCO_BRILLANTE + "[ MENU PRINCIPAL ]"
-                    + NEON_CYAN + "  ────────────────────── ║" + RESET);
-            System.out.println(
-                    NEON_CYAN + " ╠════════════════════════════════════════════════════════════════════════╣" + RESET);
-            System.out.println(NEON_CYAN + " ║ " + BLANCO_BRILLANTE
-                    + " 📊 [SYS_MOD_01] ──> INICIAR SIMULACIÓN DE LA NAVE                     " + NEON_CYAN + "║"
-                    + RESET);
-            System.out.println(NEON_CYAN + " ║ " + BLANCO_BRILLANTE
-                    + " ⚙️  [SYS_MOD_02] ──> INSTRUCCIONES DE JUEGO                         " + NEON_CYAN + "║"
-                    + RESET);
-            System.out.println(NEON_CYAN + " ║ " + NEON_ROJO
-                    + " 🔋 [SYS_MOD_03] ──> APAGAR TERMINAL CUÁNTICA                           " + NEON_CYAN + "║"
-                    + RESET);
-            System.out.println(
-                    NEON_CYAN + " ╠════════════════════════════════════════════════════════════════════════╣" + RESET);
-            System.out.println(NEON_MAGENTA
-                    + "◥◣ COMANDOS DE AUDIO: Escribe 'on' u 'off' para controlar la música       ◢◤" + RESET);
-            System.out.print(NEON_CYAN + "🧠 SELECCIONE MÓDULO O COMANDO > " + RESET);
-          }
+            Pantalla.menu(sonidoActivo, voz.activa);
             entrada = sc.nextLine().trim().toLowerCase(); // Lee toda la línea para evitar bugs
 
             // === CONTROL DE COMANDOS DE AUDIO DIRECTOS ===
@@ -76,8 +46,8 @@ public class main {
                 }
                 esperar(1200);
                 continue; // Recarga el menú principal para reflejar el cambio
-            } 
-            
+            }
+
             if (entrada.equals("on")) {
                 if (!sonidoActivo) {
                     System.out.println(NEON_VERDE + "\n🔊 Reiniciando transmisiones de audio..." + RESET);
@@ -89,6 +59,30 @@ public class main {
                 }
                 esperar(1200);
                 continue; // Recarga el menú
+            }
+
+            // === CONTROL DE VOCES (portada): "voz on", "voz off" o "voz" para alternar ===
+            if (entrada.equals("voz on") || entrada.equals("voz off") || entrada.equals("voz")) {
+                boolean activar = entrada.equals("voz on") || (entrada.equals("voz") && !voz.activa);
+                if (activar) {
+                    if (voz.activa) {
+                        System.out.println(NEON_CYAN + "\n[INFO] Las voces ya están activadas." + RESET);
+                    } else {
+                        voz.activa = true;
+                        System.out.println(NEON_VERDE + "\n🎙 Voces activadas." + RESET);
+                        voz.hablar("Voces activadas");
+                    }
+                } else {
+                    if (voz.activa) {
+                        voz.callar();
+                        voz.activa = false;
+                        System.out.println(NEON_ROJO + "\n🔇 Voces desactivadas." + RESET);
+                    } else {
+                        System.out.println(NEON_CYAN + "\n[INFO] Las voces ya están desactivadas." + RESET);
+                    }
+                }
+                esperar(1200);
+                continue; // Recarga el menú principal para reflejar el cambio
             }
 
             // === PROCESAMIENTO DE OPCIONES NUMÉRICAS ===
@@ -113,36 +107,19 @@ public class main {
                 // Lógica de tu juego
                 juego jugador = new juego();
                 jugador.jugador();
-                juego.mostrarhistoria(jugador.getPlayer());
+                String nombre = jugador.getPlayer();
 
-                personajes cod = new personajes();
-                cod.codificar();
-
-                nave camara = new nave();
-                camara.bobeda(jugador.getPlayer());
-
-                nave camara2 = new nave();
-                camara2.hibernacion(jugador.getPlayer());
-
-                nave camara3 = new nave();
-                camara3.almacen(jugador.getPlayer());
-
-                nave camara4 = new nave();
-                camara4.laboratorio(jugador.getPlayer());
-
-                nave camara5 = new nave();
-                camara5.exterior(jugador.getPlayer());
-
-                personajes personajes = new personajes();
-                personajes.moverse();
+                juego.mostrarhistoria(nombre);   // 1) historia con decisiones + desastre
+                Mision.reparar(nombre);          // 2) buscar piezas / codificar
+                juego.decisionFinal(nombre);     // 3) seguir la misión o volver a la Tierra
 
                 System.out.println(NEON_MAGENTA
                         + "\n🛰️ Crónica pausada. Presiona ENTER para volver al menú principal..." + RESET);
-                sc.nextLine(); 
+                sc.nextLine();
                 break;
 
             case 2:
-                limpiarPantalla();
+                Transicion.entrar("INSTRUCCIONES");
                 System.out.println(
                         NEON_MAGENTA + "╔════════════════ 📖 MANUAL DE INSTRUCCIONES ════════════════╗" + RESET);
                 System.out.println("  1. Tu misión es explorar y asegurar las cámaras de la nave.");
@@ -154,13 +131,23 @@ public class main {
                 System.out.println("  3. Interactúa con los personajes para descifrar códigos.");
                 System.out.println("  4. Toma decisiones sabias en cada sala para poder sobrevivir.");
                 System.out.println("  5. Usa números válidos en la terminal para evitar bloqueos.");
+                System.out.println("  6. Revisa CONTROLES (opción 3) para ver cómo apagar la música y las voces.");
                 System.out.println(
                         NEON_MAGENTA + "╚════════════════════════════════════════════════════════════╝" + RESET);
-                System.out.print(NEON_VERDE + "\nPresiona ENTER para replegar el manual táctico..." + RESET);
-                sc.nextLine(); 
+                System.out.print(NEON_VERDE + "\nPresiona ENTER para volver al menú principal..." + RESET);
+                sc.nextLine();
+                Transicion.salir();
                 break;
 
             case 3:
+                Transicion.entrar("CONTROLES");
+                Pantalla.controles(sonidoActivo, voz.activa);
+                System.out.print(NEON_VERDE + "\n⏎ Presiona ENTER para volver al menú principal..." + RESET);
+                sc.nextLine();
+                Transicion.salir();
+                break;
+
+            case 4:
                 limpiarPantalla();
                 System.out.println(
                         NEON_ROJO + "☢️ Desconectando reactores principales... Cierre de sesión exitoso." + RESET);
@@ -173,12 +160,13 @@ public class main {
 
             default:
                 System.out.println(
-                        NEON_ROJO + "⚠️ ENTRADA ERRÓNEA. Ingrese una credencial (1, 2, 3) o comandos (on/off).\n" + RESET);
+                        NEON_ROJO + "⚠️ ENTRADA ERRÓNEA. Ingrese una opción (1, 2, 3, 4) o comandos (on/off, voz on/voz off).\n" + RESET);
                 esperar(1500);
                 break;
             }
         }
         sc.close();
+        System.exit(0);   // cierra también la ventanita del asistente y la voz
     }
 
     public static void esperar(int milisegundos) {
