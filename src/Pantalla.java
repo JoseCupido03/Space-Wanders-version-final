@@ -1,20 +1,37 @@
 /**
- * Pantalla de inicio grande: título en letras gigantes y menú que ocupa todo el ancho de la terminal.
+ * Pantalla de inicio grande: título en letras gigantes y menú que ocupa casi todo el ancho de la terminal.
  * También dibuja la pantalla de CONTROLES (guía rápida del juego).
  */
 public class Pantalla {
 
-    /** Ancho interior del menú. Súbelo (150, 180...) si tu terminal es más ancha, bájalo si es angosta. */
-    public static int ANCHO = 120;
+    /**
+     * Ancho interior del menú. El título grande mide 165 columnas, así que NO lo bajes de 167.
+     * Si el marco se ve partido es que tu terminal es más angosta: agrándala o baja este número (mínimo 167).
+     */
+    public static int ANCHO = 172;
 
-    private static final String[] TITULO = {
-        "███████╗██████╗  █████╗  ██████╗███████╗    ██╗    ██╗ █████╗ ███╗   ██╗██████╗ ███████╗██████╗ ███████╗",
-        "██╔════╝██╔══██╗██╔══██╗██╔════╝██╔════╝    ██║    ██║██╔══██╗████╗  ██║██╔══██╗██╔════╝██╔══██╗██╔════╝",
-        "███████╗██████╔╝███████║██║     █████╗      ██║ █╗ ██║███████║██╔██╗ ██║██║  ██║█████╗  ██████╔╝███████╗",
-        "╚════██║██╔═══╝ ██╔══██║██║     ██╔══╝      ██║███╗██║██╔══██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗╚════██║",
-        "███████║██║     ██║  ██║╚██████╗███████╗    ╚███╔███╔╝██║  ██║██║ ╚████║██████╔╝███████╗██║  ██║███████║",
-        "╚══════╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚══════╝"
-    };
+    // Título grande (165 columnas). Todas las filas se igualan para que no se descuadre.
+    private static final String[] TITULO = igualar(new String[] {
+        "  █████████  ███████████    █████████     █████████  ██████████    █████   ███   █████   █████████   ██████   █████ ██████████   ██████████ ███████████    █████████",
+        " ███░░░░░███░░███░░░░░███  ███░░░░░███   ███░░░░░███░░███░░░░░█   ░░███   ░███  ░░███   ███░░░░░███ ░░██████ ░░███ ░░███░░░░███ ░░███░░░░░█░░███░░░░░███  ███░░░░░███",
+        "░███    ░░░  ░███    ░███ ░███    ░███  ███     ░░░  ░███  █ ░     ░███   ░███   ░███  ░███    ░███  ░███░███ ░███  ░███   ░░███ ░███  █ ░  ░███    ░███ ░███    ░░░",
+        "░░█████████  ░██████████  ░███████████ ░███          ░██████       ░███   ░███   ░███  ░███████████  ░███░░███░███  ░███    ░███ ░██████    ░██████████  ░░█████████",
+        " ░░░░░░░░███ ░███░░░░░░   ░███░░░░░███ ░███          ░███░░█       ░░███  █████  ███   ░███░░░░░███  ░███ ░░██████  ░███    ░███ ░███░░█    ░███░░░░░███  ░░░░░░░░███",
+        " ███    ░███ ░███         ░███    ░███ ░░███     ███ ░███ ░   █     ░░░█████░█████░    ░███    ░███  ░███  ░░█████  ░███    ███  ░███ ░   █ ░███    ░███  ███    ░███",
+        "░░█████████  █████        █████   █████ ░░█████████  ██████████       ░░███ ░░███      █████   █████ █████  ░░█████ ██████████   ██████████ █████   █████░░█████████",
+        " ░░░░░░░░░  ░░░░░        ░░░░░   ░░░░░   ░░░░░░░░░  ░░░░░░░░░░         ░░░   ░░░      ░░░░░   ░░░░░ ░░░░░    ░░░░░ ░░░░░░░░░░   ░░░░░░░░░░ ░░░░░   ░░░░░  ░░░░░░░░░"
+    });
+
+    private static String[] igualar(String[] filas) {
+        int max = 0;
+        for (String f : filas) max = Math.max(max, f.length());
+        for (int i = 0; i < filas.length; i++) {
+            StringBuilder sb = new StringBuilder(filas[i]);
+            while (sb.length() < max) sb.append(' ');
+            filas[i] = sb.toString();
+        }
+        return filas;
+    }
 
     // Letras gigantes de la palabra CONTROLES (6 filas cada una)
     private static final String[][] LETRAS = {
@@ -71,11 +88,13 @@ public class Pantalla {
         System.out.println(tituloCaja("[ MENU PRINCIPAL ]", W));
         System.out.println(cian + "╠" + repetir('═', W) + "╣" + r);
 
-        int sang = Math.max(3, (W - 50) / 2);
-        System.out.println(fila(sang, blanco + "📊 [SYS_MOD_01] ──> INICIAR SIMULACIÓN DE LA NAVE", W));
-        System.out.println(fila(sang, blanco + "⚙️ [SYS_MOD_02] ──> INSTRUCCIONES DE JUEGO", W));
-        System.out.println(fila(sang, Estilo.AMARILLO + "🎮 [SYS_MOD_03] ──> CONTROLES Y AYUDA", W));
-        System.out.println(fila(sang, rojo + "🔋 [SYS_MOD_04] ──> APAGAR TERMINAL CUÁNTICA", W));
+        // --- opciones: cada una es un botón grande con su propio marco ---
+        System.out.println(fila(3, "", W));
+        System.out.println(boton("📊", "1", "INICIAR SIMULACIÓN DE LA NAVE", Estilo.VERDE, W));
+        System.out.println(boton("⚙️", "2", "INSTRUCCIONES DE JUEGO", Estilo.AZUL, W));
+        System.out.println(boton("🎮", "3", "CONTROLES Y AYUDA", Estilo.AMARILLO, W));
+        System.out.println(boton("🔋", "4", "APAGAR TERMINAL CUÁNTICA", Estilo.ROJO, W));
+        System.out.println(fila(3, "", W));
 
         System.out.println(cian + "╠" + repetir('═', W) + "╣" + r);
 
@@ -135,6 +154,19 @@ public class Pantalla {
         System.out.println(fila(sang, blanco + "ESTADO ACTUAL  ►  " + cian + "🔊 MÚSICA: " + musica
                 + cian + "   │   🎙 VOZ: " + vozEstado, W));
         System.out.println(cian + "╚" + repetir('═', W) + "╝" + r);
+    }
+
+    /** Un botón de 3 filas con marco de color. Para hacerlo más ancho cambia "ancho". */
+    private static String boton(String icono, String numero, String texto, String color, int W) {
+        int ancho = 76;
+        int x = Math.max(3, (W + 2 - ancho) / 2 + 1);          // columna donde empieza el botón
+        String c = Estilo.CIAN;
+        String linea = repetir('─', ancho - 2);
+        String lado = c + col(W + 2) + "║" + Estilo.RESET;
+        return c + "║" + col(x) + color + "┌" + linea + "┐" + lado + "\n"
+             + c + "║" + col(x) + color + "│" + col(x + 3) + icono + " " + Estilo.NEGRITA + Estilo.BLANCO
+                 + "[" + numero + "]  " + texto + Estilo.RESET + color + col(x + ancho - 1) + "│" + lado + "\n"
+             + c + "║" + col(x) + color + "└" + linea + "┘" + lado;
     }
 
     /** Una fila de la guía: etiqueta de color a la izquierda, explicación a la derecha. */
